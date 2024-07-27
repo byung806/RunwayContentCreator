@@ -6,6 +6,7 @@ import Question from "./question";
 import useInput from "./useInput";
 
 import { Inter } from 'next/font/google';
+import ReactGPicker from "react-gcolor-picker";
 
 const inter = Inter({
     weight: ['800'],
@@ -98,23 +99,9 @@ export default function Home() {
 
                 <div className="flex flex-col space-y-4">
                     {Object.keys(colors).map((key: string) => (
-                        // <ReactGPicker
-                        //     value='white'
-                        //     onChange={
-                        //         (color) => {
-                        //             const newColors = { ...colors };
-                        //             newColors[key as keyof ContentColors] = color;
-                        //             setColors(newColors);
-                        //         }
-                        //     }
-                        //     format='hex'
-                        //     showAlpha={false}
-                        //     allowAddGradientStops={false}
-                        //     defaultColors={[]}
-                        // />
                         <div className="space-y-1">
                             <p>{key}</p>
-                            <input
+                            {/* <input
                                 className="bg-neutral-100 rounded-xl p-4 outline-none"
                                 type="text"
                                 placeholder={key}
@@ -124,6 +111,20 @@ export default function Home() {
                                     newColors[key as keyof ContentColors] = event.target.value;
                                     setColors(newColors);
                                 }}
+                            /> */}
+                            <ReactGPicker
+                                value='white'
+                                onChange={
+                                    (color) => {
+                                        const newColors = { ...colors };
+                                        newColors[key as keyof ContentColors] = color;
+                                        setColors(newColors);
+                                    }
+                                }
+                                format='hex'
+                                showAlpha={false}
+                                allowAddGradientStops={false}
+                                defaultColors={[]}
                             />
                         </div>
                     ))}
