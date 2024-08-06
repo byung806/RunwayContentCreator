@@ -3,18 +3,20 @@
 This tool allows you to create content for Runway, the mobile STEM app.
 It uploads content to the Firestore /content collection.
 
-## Installation
+## Installation & Setup
 
-To get started, run the following command to install the necessary dependencies:
-
+Install dependencies:
 ```
 npm install
 ```
 
+Upload `serviceAccountKey.json` inside `src/app`.
+
 ## Usage
 
-To start the development server, run the following command:
-
+Run the command below to get started:
 ```
 npm run dev
 ```
+
+Then, navigate to `localhost:3000` in any browser.
