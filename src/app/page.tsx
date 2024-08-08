@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react";
-import { addContent, ContentColors, ContentQuestion } from "./add_content";
+import { useEffect, useState } from "react";
+import { addContent, Content, ContentColors, ContentQuestion, getCurrentContent } from "./add_content";
 import Question from "./question";
 import useInput from "./useInput";
 
@@ -16,8 +16,18 @@ const inter = Inter({
 export default function Home() {
     const date = useInput('');
     const title = useInput('');
+    const author = useInput('');
     const category = useInput('');
     const body = useInput('');
+
+    let [currentContent, setCurrentContent] = useState<{ [key: string]: Content }>();
+
+    useEffect(() => {
+        getCurrentContent().then((content) => {
+            console.log(content);
+            setCurrentContent(content);
+        });
+    }, []);
 
     const [questions, setQuestions] = useState<ContentQuestion[]>([
         { question: '', choices: [{ choice: '', correct: false }] }
@@ -96,8 +106,11 @@ export default function Home() {
                         <div className="h-10"></div>
                     </div>
                 </div>
+            </div>
 
-                <div className="flex flex-col space-y-4">
+
+            <div className="flex flex-col bg-gray-200 p-16 rounded-xl space-y-4 w-[80%] shadow-2xl">
+                <div className="flex justify-between">
                     {Object.keys(colors).map((key: string) => (
                         <div className="space-y-1">
                             <p>{key}</p>
@@ -121,6 +134,8 @@ export default function Home() {
                                         setColors(newColors);
                                     }
                                 }
+                                popupWidth={180}
+                                colorBoardHeight={100}
                                 format='hex'
                                 showAlpha={false}
                                 allowAddGradientStops={false}
@@ -129,13 +144,23 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-            </div>
+                <div className="flex flex-row space-x-4 flex-wrap">
+                    <p className='w-20 font-bold'>CURRENT CONTENT:</p>
+                    {currentContent && Object.keys(currentContent).map((date: string) => (
+                        <div className="border border-black p-2 w-30 rounded-2xl">
+                            <p>{date}</p>
+                            <p>{currentContent[date].title}</p>
+                        </div>
+                    ))}
+                </div>
 
+                <p>Please use a date that isn't in current content!</p>
 
-            <div className="flex flex-col bg-gray-200 p-16 rounded-xl space-y-4 w-[60%] shadow-2xl">
                 <div className="flex space-x-4">
                     <input className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-60"
-                        placeholder={new Date().toISOString().split('T')[0]}
+                        placeholder={
+                            'YYYY-MM-DD'
+                        }
                         value={date.value}
                         onChange={date.onChange}
                     />
@@ -143,6 +168,11 @@ export default function Home() {
                         placeholder="Title"
                         value={title.value}
                         onChange={title.onChange}
+                    />
+                    <input className="bg-neutral-100 rounded-xl p-4 min-w-0 outline-none"
+                        placeholder="Author"
+                        value={author.value}
+                        onChange={author.onChange}
                     />
                     <input className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-60"
                         placeholder="Category"
@@ -182,6 +212,7 @@ export default function Home() {
                     onClick={async () => {
                         const content = {
                             title: title.value,
+                            author: author.value,
                             category: category.value,
                             body: body.value,
                             questions: questions
