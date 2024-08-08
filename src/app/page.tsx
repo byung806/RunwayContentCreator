@@ -46,7 +46,7 @@ export default function Home() {
     let extra = 'Today';
 
     return (
-        <div className="flex justify-center items-center space-x-16 p-16" style={{
+        <div className="flex justify-center space-x-16 p-16" style={{
             fontFamily: inter.style.fontFamily,
             fontWeight: 800,
             backgroundColor: colors.outerBackgroundColor,
