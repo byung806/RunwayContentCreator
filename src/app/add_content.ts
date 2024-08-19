@@ -15,22 +15,52 @@ export interface ContentColors {
     outerBackgroundColor: string;
 }
 
-export interface ContentQuestion {
+export interface FirebaseContentQuestion {
     question: string;
-    choices: ContentQuestionChoice[];
+    choices: FirebaseContentQuestionChoice[];
 }
 
-export interface ContentQuestionChoice {
+export interface FirebaseContentQuestionChoice {
     choice: string;
     correct: boolean;
 }
+
+export interface FirebaseParagraphContentChunkType {
+    type: 'paragraph';
+    text: string;
+}
+
+export interface FirebaseImageContentChunkType {
+    type: 'image';
+    uri: string;
+}
+
+export interface FirebaseIconContentChunkType {
+    type: 'icon';
+    icon: string;
+}
+
+export interface FirebaseQuestionContentChunkType {
+    type: 'question';
+    question: string;
+    choices: FirebaseContentQuestionChoice[];
+}
+
+export interface FirebaseEmptyContentChunkType {
+    type: 'empty';
+    fractionOfScreen: number;
+}
+
 
 export interface Content {
     title: string;
     author: string;
     category: string;
-    body: string;
-    questions: ContentQuestion[];
+
+    chunks?: (FirebaseParagraphContentChunkType | FirebaseImageContentChunkType | FirebaseIconContentChunkType | FirebaseQuestionContentChunkType | FirebaseEmptyContentChunkType)[];
+
+    body?: string;
+    questions?: FirebaseContentQuestion[];
 }
 
 async function getTodayDate(): Promise<string> {
@@ -42,30 +72,57 @@ async function dateToString(date: Date): Promise<string> {
     return date.toISOString().split('T')[0];
 }
 
-async function stringToDate(dateString: string): Promise<Date> {
+export async function stringToDate(dateString: string): Promise<Date> {
     return new Date(dateString + 'T00:00:00');
 }
 
 export async function getCurrentContent() {
-    const dateToContent: { [key: string]: Content } = {};
+    const dateToContent: { [key: string]: Content | null } = {};
 
-    let success = true;
+    // Check ahead
+    let amountToCheckAhead = 10;
     let date = await stringToDate(await getTodayDate());
-    while (success) {
+    let countChecked = 0;
+    while (countChecked <= amountToCheckAhead) {
         const dateString = await dateToString(date);
         try {
+            date.setDate(date.getDate() + 1);
+            countChecked++;
+
             const content = await admin.firestore().collection('content').doc(dateString).get() as admin.firestore.DocumentSnapshot<Content>;
             let Content = content.data();
             if (Content === undefined) {
-                success = false;
-                break;
+                dateToContent[dateString] = null;
+                continue;
             }
             dateToContent[dateString] = Content;
-            date.setDate(date.getDate() - 1);
         } catch (error) {
-            success = false;
+            break;
         }
     }
+
+    // Check behind
+    let amountToCheckBehind = 3;
+    date = await stringToDate(await getTodayDate());
+    countChecked = 0;
+    while (countChecked <= amountToCheckBehind) {
+        const dateString = await dateToString(date);
+        try {
+            date.setDate(date.getDate() - 1);
+            countChecked++;
+
+            const content = await admin.firestore().collection('content').doc(dateString).get() as admin.firestore.DocumentSnapshot<Content>;
+            let Content = content.data();
+            if (Content === undefined) {
+                dateToContent[dateString] = null;
+                continue;
+            }
+            dateToContent[dateString] = Content;
+        } catch (error) {
+            break;
+        }
+    }
+
     return dateToContent;
 }
 
