@@ -107,8 +107,7 @@ function QuestionContentChunk({ question, setQuestion }: { question: FirebaseCon
     const [choices, setChoices] = useState(question.choices);
 
     useEffect(() => {
-        console.log('change in question');
-        setQuestion({ question: questionText, choices: question.choices });
+        setQuestion({ question: questionText, choices: choices });
     }, [questionText, choices]);
 
     return (
