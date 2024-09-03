@@ -23,9 +23,16 @@ export default function Home() {
         (ChunkType & {
             valid: boolean;
         })[]
-    >([]);
+    >([
+        {
+            type: "image",
+            uri: "",
+            valid: false,
+        },
+    ]);
 
-    let [currentContent, setCurrentContent] = useState<{ [key: string]: Content | null }>();
+    let [currentContent, setCurrentContent] = useState<{ [key: string]: Content | null }>(
+    );
 
     useEffect(() => {
         getCurrentContent().then((content) => {
@@ -169,25 +176,34 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
+                <p className="flex justify-center font-bold text-3xl">Click a purple day to get started</p>
                 <div className="flex space-y-4 space-x-4 flex-wrap">
-                    <p className="w-20 font-bold">CURRENT CONTENT:</p>
                     {currentContent &&
                         Object.keys(currentContent)
-                            .toSorted((a: string, b: string) => {
-                                return new Date(a).getDate() - new Date(b).getDate();
+                            .toSorted(function (a, b) {
+                                a = a.split('-').join('');
+                                b = b.split('-').join('');
+                                return a > b ? 1 : a < b ? -1 : 0;
+                                // return a.localeCompare(b);         // <-- alternative 
                             })
-                            .map((date: string) => (
-                                <div
+                            .map((dateStr: string) => (
+                                <button
                                     className="border-2 p-2 w-30 rounded-2xl shadow-sm justify-center items-center"
+                                    onClick={currentContent[dateStr] ? () => { } :
+                                        () => {
+                                            date.setValue(dateStr);
+                                        }}
                                     style={{
-                                        backgroundColor: currentContent[date] ? "white" : "#f74449",
-                                        borderColor: "black",
-                                        borderWidth: new Date(date + "T00:00:00").getDate() == new Date().getDate() ? 2 : 0,
+                                        backgroundColor: currentContent[dateStr] ? "#e5e5e5" : "#8b45a4",
+                                        borderColor: new Date(dateStr + "T00:00:00").getDate() == new Date().getDate() ? "black" : 
+                                            date.value === dateStr ? "black" : "transparent",
+                                        color: currentContent[dateStr] ? "#ababab" : "white",
+                                        borderWidth: 2,
                                     }}
                                 >
-                                    <p>{date}</p>
-                                    {currentContent[date] && <p>{currentContent[date]?.title}</p>}
-                                </div>
+                                    <p>{dateStr}</p>
+                                    {currentContent[dateStr] && <p>{currentContent[dateStr]?.title}</p>}
+                                </button>
                             ))}
                 </div>
 
@@ -335,8 +351,11 @@ export default function Home() {
                             title: title.value,
                             author: author.value,
                             category: category.value,
-
-                            chunks: chunks,
+                            // pass in chunks but remove all "valid" keys
+                            chunks: chunks.map((chunk) => {
+                                const { valid, ...rest } = chunk;
+                                return rest;
+                            })
                         };
 
                         console.log(JSON.stringify(content));
