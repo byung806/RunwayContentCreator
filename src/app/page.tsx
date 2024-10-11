@@ -18,6 +18,7 @@ export default function Home() {
     const title = useInput("");
     const author = useInput("");
     const category = useInput("");
+    const points = useInput("500");
     // const body = useInput('');
     const [chunks, setChunks] = useState<
         (ChunkType & {
@@ -209,7 +210,7 @@ export default function Home() {
 
                 <div className="flex space-x-4">
                     <input
-                        className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-60"
+                        className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-56"
                         style={{
                             borderColor: (currentContent && currentContent[date.value] !== null) || Number.isNaN(dateObject.getDate()) ? "red" : undefined,
                             borderWidth: 2,
@@ -229,9 +230,9 @@ export default function Home() {
                         onChange={title.onChange}
                     />
                     <input
-                        className="bg-neutral-100 rounded-xl p-4 min-w-0 outline-none"
+                        className="bg-neutral-100 rounded-xl p-4 min-w-0 outline-none w-48"
                         style={{
-                            borderColor: title.value === "" ? "red" : undefined,
+                            borderColor: author.value === "" ? "red" : undefined,
                             borderWidth: 2,
                         }}
                         placeholder="Author"
@@ -239,14 +240,24 @@ export default function Home() {
                         onChange={author.onChange}
                     />
                     <input
-                        className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-60"
+                        className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-48"
                         style={{
-                            borderColor: title.value === "" ? "red" : undefined,
+                            borderColor: category.value === "" ? "red" : undefined,
                             borderWidth: 2,
                         }}
                         placeholder="Category"
                         value={category.value}
                         onChange={category.onChange}
+                    />
+                    <input
+                        className="bg-neutral-100 rounded-xl p-4 outline-none min-w-0 w-32"
+                        style={{
+                            borderColor: isNaN(Number(points.value)) || points.value === "" ? "red" : undefined,
+                            borderWidth: 2,
+                        }}
+                        placeholder="Points"
+                        value={points.value}
+                        onChange={points.onChange}
                     />
                 </div>
 
@@ -346,11 +357,16 @@ export default function Home() {
                             alert("Please change the colors");
                             return;
                         }
+                        if (isNaN(Number(points.value))) {
+                            alert("Please fill out a valid number of points");
+                            return;
+                        }
 
                         const content = {
                             title: title.value,
                             author: author.value,
                             category: category.value,
+                            possiblePoints: Number(points.value),
                             // pass in chunks but remove all "valid" keys
                             chunks: chunks.map((chunk) => {
                                 const { valid, ...rest } = chunk;
@@ -370,6 +386,7 @@ export default function Home() {
                             date.setValue("");
                             title.setValue("");
                             category.setValue("");
+                            points.setValue("500");
                             setChunks([]);
                             setColors({
                                 textColor: "#000000",

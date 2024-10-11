@@ -58,6 +58,7 @@ export interface Content {
     title: string;
     author: string;
     category: string;
+    possiblePoints: number;
 
     chunks?: (FirebaseParagraphContentChunkType | FirebaseImageContentChunkType | FirebaseIconContentChunkType | FirebaseQuestionContentChunkType | FirebaseEmptyContentChunkType)[];
 
